@@ -184,8 +184,8 @@ This section shows example codes that highlight the usage of main features of th
 どちらのページもhttp://example.orgドメイン(http://example.org/controller.htmlとhttp://example.org/presentation.html)にホストされる。
 詳細はコード中のコメントを参照。
 
-### 5.1 プレゼンテーションディスプレイの可用性監視
 
+### 5.1 プレゼンテーションディスプレイの可用性監視
 
 ```
 <!-- controller.html -->
@@ -326,6 +326,7 @@ Dは一組のタプル(U,I,S)として表される。
 Uは表示されているURL、Iはpresentation用の英数字の識別子、SはpresentationのためのUAのPresentationSessionである。
 UとIは、対応するpresentationのPresentationSessionを一意的に識別する。
 
+
 ### 6.3 PresentationSessionインタフェース
 
 各presentation sessionは、PresentationSessionオブジェクトによって表される。
@@ -378,11 +379,124 @@ PresentationSessionオブジェクトのcloseメソッドが呼ばれたとき�
 
 #### 6.3.1 PresentationSessionを通してのメッセージの送信
 
+<!-- 
+Let presentation message data be the payload data to be transmitted between two browsing contexts. Let presentation message type be the type of that data, one of text and binary.
+ -->
+
+presentation message dataを2つのbrowsing contextの間で送信されるペーロードデータとする。
+presentatio nmessage typeをそのデータの型、テキストかバイナリのどちらかとする。
+
+<!-- 
+When the user agent is to post a message through a PresentationSession S, it must run the following steps:
+ -->
+
+UAがPresentationSession Sから送信するとき、以下のステップを実行しなければならない:
+
+<!-- 
+1. If the state property of PresentationSession is "disconnected", throw an InvalidStateError exception.
+2. Let presentation message type messageType be binary if data is one of ArrayBuffer or Blob. Let messageType be text if data is of type DOMString)
+3. Assign the destination browsing context as follows:
+    1. Let the the destination browsing context be the opening browsing context if postMessage is called in the presenting browsing context.
+    2. Let destination browsing context be the presenting browsing context if postMessage is called from the opening browsing context.
+4. Using an implementation specific mechanism, transmit the contents of the data argument as presentation message data and presentation message type messageType to the destination browsing context side.
+ -->
+
+1. PresentationSessionのstateプロパティが"disconnected"なら、InvalidStateError例外を投げる。
+
+2. もしdataがArrayBufferかBlobなら、presentation message type messageTypeをbinaryとする。
+もしdataがDOMString型なら、messageTypeをtextとする。
+
+3. destination browsing contextを以下のように割り当てる:
+
+    1. postMessageがpresenting browsing context内で呼ばれとき、destination browsing contextをopening browsing contextとする。
+
+    2. postMessageがopening browsing contextから呼ばれたとき、destination browsing contextをpresenting browsing contextとする。
+
+4. 特定のメカニズムの実装を使って、presentation message dataとして、data引数のコンテンツとpresentation message type messageTypeを、destination browsing context側に送信する。
+
+
 #### 6.3.2 PresentationSessionを使ったメッセージの受信
 
-#### 6.3.4 PresentationSessionのクローズ
+<!-- 
+When the user agent has received a transmission from the remote side consisting of presentation message data and presentation message type, it must run the following steps:
+ -->
+
+UAがリモートサイドから、presentation message dataとpresentation message typeからなるメッセージを受信したとき、以下のステップを実行しなければならない:
+
+<!-- 
+1. If the state property of PresentationSession is "disconnected", abort these steps.
+
+2. Let event be a newly created trusted event that uses the MessageEvent interface, with the event type message, which does not bubble, is not cancelable, and has no default action.
+
+3. Initialize event's origin attribute to the Unicode serialization of the URL that the opening browsing context and the presenting browsing context have in common.
+
+4. Initialize the event's data attribute as follows:
+    1. If the presentation message type is text, then initialize event's data attribute to the contents of presentation message data of type DOMString.
+    2. If the presentation message type is binary, and binaryType is set to blob, then initialise event's data attribute to a new Blob object that represents presentation message data as its raw data.
+    3. If the presentation message type is binary, and binaryType is set to arraybuffer, then initialise event's data attribute to a new ArrayBuffer object whose contents are presentation message data.
+5. Queue a task to fire event at PresentationSession.
+ -->
+
+1. もしPresentationSessionのstateプロパティが"disconnected"なら、これらのステップを中断する。
+
+2. eventを、イベントタイプがmessageのMessageEventインタフェースを使用する、新たに生成したtrusted eventとする。それはバブルせず、キャンセルできず、デフォルトアクションを持たない。
+
+3. eventのorigin属性をURLのUnicodeシリアライゼーションで初期化する。
+opening browsing contextとpresenting browsing contextが共通して持つ。
+
+4. eventのdata属性は以下のように初期化する。
+
+    1. presentation message typeがtextなら、eventのdata属性をDOMString型のpresentation message dataのコンテンツで初期化する。
+
+    2. presentation message typeがbinaryで、binaryTypeがblobなら、eventのdata属性を新規Blobオブジェクトで初期化する。それは生データとしてpresentation message dataで表す。
+
+    3. presentation message typeがbinaryで、binaryTypeがarraybufferなら、eventのdata属性を新規ArrayBufferオブジェクトで初期化する。そのコンテンツはpresentatio nmessage dataである。
+
+5. PresentationSessionでイベントを発火するタスクをキューイングする。
+
+
+#### 6.3.3 PresentationSessionのクローズ
+
+<!-- 
+When the user agent is to close a presentation session S, it must run the following steps:
+ -->
+
+UAがpresentation session Sをクローズしようとするとき、以下のステップを実行しなければならない:
+
+<!-- 
+1. If S.state is not connected, then:
+    1. Abort these steps.
+2. Set S.state to disconnected.
+3. Let D be the set of presentations known by the user agent.
+4. Queue a task T to run the following steps in order:
+    1. For each presentation (U, I, S') in D,
+        1. Let u equal U, i equal I, and s equal S'.
+        2. If u is equal to S.url and i is equal to S.id, run the following steps:
+            1.Queue a task to fire an event named statechange at s.onstatechange.
+ -->
+
+1. S.stateがconnectedでないなら:
+    1. これらのステップを中断する。
+
+2. S.stateを"disconnected"にセットする。
+
+3. DをUAによって知られているpresentationのセットとする。
+
+4. 以下のステップを順番に実行するよう、タスクTをキューに入れる。
+
+    1. D内の各presentation(U, I, S')に対して、
+
+        1. uをU、iをI、sをS'とする。
+        2. uがS.urlと等しく、iがS.idと等しいなら、以下のステップを実行する:
+
+            1. s.onstatechangeでstatechangeイベントを発火するタスクをキューに入れる。
+
 
 #### 6.3.4 イベントハンドラ
+
+<!-- 
+The following are the event handlers (and their corresponding event handler event types) that must be supported, as event handler IDL attributes, by objects implementing the PresentationSession interface:
+ -->
 
 以下のイベントハンドラ(と対応するイベントハンドライベントタイプ)は、PresentationSessionインタフェースを実装するオブジェクトで、イベントハンドラIDL属性としてサポートされなければならない。
 
@@ -393,6 +507,8 @@ onstatechange | statechange
 
 
 ## 7 NavigatorPresentationインタフェース
+
+
 
 ### 7.1 プレゼンテーションセッションの開始
 
