@@ -8,6 +8,30 @@ Editor's Draft 18 March 2015
 
 ## 本ドキュメントの状態
 
+<!-- 
+This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current W3C publications and the latest revision of this technical report can be found in the W3C technical reports index at http://www.w3.org/TR/.
+ -->
+<!-- 
+This document was published by the Second Screen Presentation Working Group as an Editor's Draft. If you wish to make comments regarding this document, please send them to public-secondscreen@w3.org (subscribe, archives). All comments are welcome.
+ -->
+
+<!-- 
+This document is a work in progress and is subject to change. It builds on the final report (dated 18 November 2014) produced by the Second Screen Presentation Community Group. Algorithms have been drafted in particular. Most sections are still incomplete or underspecified. Privacy and security considerations are missing. A few open issues are noted inline. Please check the group's issue tracker on GitHub for an accurate list. Feedback from early experimentations is encouraged to allow the Second Screen Presentation Working Group to evolve the specification based on implementation issues.
+ -->
+
+<!-- 
+Publication as a First Public Working Draft does not imply endorsement by the W3C Membership. This is a draft document and may be updated, replaced or obsoleted by other documents at any time. It is inappropriate to cite this document as other than work in progress.
+ -->
+
+<!-- 
+This document was produced by a group operating under the 5 February 2004 W3C Patent Policy. W3C maintains a public list of any patent disclosures made in connection with the deliverables of the group; that page also includes instructions for disclosing a patent. An individual who has actual knowledge of a patent which the individual believes contains Essential Claim(s) must disclose the information in accordance with section 6 of the W3C Patent Policy.
+ -->
+
+<!-- 
+This document is governed by the 1 August 2014 W3C Process Document.
+ -->
+
+
 ## 1. 導入
 
 本セクションは非規範的である。
@@ -111,9 +135,16 @@ Alice enters a video sharing site using a browser on her tablet. Next, Alice pic
 
 ### 2.2 要件
 
+<!-- 
+The requirements enumerated in this section are derived from the use cases.
+ -->
+
+本セクションで列挙された要件は、ユースケースから派生している。
+
 #### 2.2.1 機能要件
 
 ##### 検出・可用性
+
 <!-- 
 The UA must provide a way to find out whether at least one secondary screen is available.
  -->
@@ -149,11 +180,12 @@ UAは自身が通信しているリモートページのUAの実行局地性に�
 
 <!-- 
 The UA must signal disconnection from the presentation page to the primary page and vice versa.
-UAは表示ページから開始ページへ(その逆も)、切断信号を送れなければならない。
  -->
 
-#### 2.2.2 非機能要件
+UAは表示ページから開始ページへ(その逆も)、切断信号を送れなければならない。
 
+
+#### 2.2.2 非機能要件
 
 ##### パワーセーブフレンドリー
 <!-- 
@@ -167,11 +199,11 @@ APIは効率的な方法での無線リソースの使用に障害とならな�
 
 ## 3 適合性
 
-省略
+略
 
 ## 4 用語
 
-省略
+略
 
 ## 5 例
 
@@ -508,21 +540,187 @@ onstatechange | statechange
 
 ## 7 NavigatorPresentationインタフェース
 
+```
+partial interface Navigator {
+  readonly attribute NavigatorPresentation presentation;
+};
+```
 
+<!-- 
+The presentation attribute is used to retrieve an instance of the NavigatorPresentation interface, the main interface of Presentation API.
+ -->
+
+presentation属性はNavigatorPresentationインタフェースのインスタンスの取得に使われる。
+
+```
+interface NavigatorPresentation : EventTarget {
+  readonly attribute PresentationSession? session;
+  Promise<PresentationSession> startSession(DOMString url, DOMString? presentationId);
+  Promise<PresentationSession> joinSession(DOMString url, DOMString? presentationId);
+  attribute EventHandler onavailablechange;
+};
+```
 
 ### 7.1 プレゼンテーションセッションの開始
 
+<!-- 
+When the startSession(presentationUrl, presentationId) method is called, the user agent must run the following steps:
+ -->
+
+#### Input
+
+<!-- 
+presentationUrl, the URL of the document to be presented
+presentationId, an optional identifier for the presentation
+ -->
+
+#### Output
+
+<!-- 
+P, a Promise
+ -->
+
+
+1. Let P be a new Promise.
+2. Return P.
+3. If the user agent does not monitor presentation display availability, run the following steps:
+    1. Monitor presentation display availability.
+    2. Wait until the algorithm completes.
+4. If the availableDisplays list is empty, then:
+    1. Reject P with a "NoScreensAvailable" exception.
+    2. Abort all remaining steps.
+5. Queue a task T to request user permission for the use of a presentation display and selection of one presentation display.
+    1. If T completes with the user granting permission to use a screen, run the following steps:
+        1. If presentationId is not undefined, assign I to that that presentationId.
+        2. If presentationId is undefined, let I be a random alphanumeric value of at least 16 characters drawn from the characters [A-Za-z0-9].
+        3. Create a new PresentationSession S.
+        4. Set S.url to presentationUrl, set S.id to I, and set S.state to disconnected.
+        5. Queue a task C to create a new browsing context on the user-selected presentation display and navigate to presentationUrl in it.
+            1. If C completes successfully, run the following steps:
+                1. Add (S.url, S.id, S) to D.
+                2. Resolve P with S.
+                3. Establish a presentation connection with S.
+            2. If C fails, run the following steps:
+                1. Reject P with a "failed" exception.
+    2. If T completes with the user denying permission, run the following steps:
+        1. Reject P with a "PermissionDenied" exception.
+
 ### 7.2 プレゼンテーションセッションへの参加
+
+<!-- 
+When the joinSession(presentationUrl, presentationId) method is called, the user agent must run the following steps:
+ -->
+
+#### Input
+
+<!-- 
+presentationUrl, the URL of the document being presented
+presentationId, the identifier for the presentation
+ -->
+
+#### Output
+
+<!-- 
+P, a Promise
+ -->
+
+1. Let P be a new Promise.
+2. Return P.
+3. Let D be the set of presentations known by the user agent.
+4. Queue a task T to run the following steps in order:
+    1. For each presentation (U, I, S) in D,
+        1. Let u equal U, i equal I, and s equal S.
+        2. If u is equal to presentationUrl and i is equal to presentationId, run the following steps:
+            1. Resolve P with S.
+            2. Establish a presentation connection with S.
+            3. Abort the remaining steps of T.
+    2. Reject P with a "NoPresentationFound" exception.
+
+
+
 
 ### 7.3 プレゼンテーションコネクションの確立
 
+<!-- 
+When the user agent is to establish a presentation connection using a presentation session S, it must run the following steps:
+ -->
+
+
+1. If S.state is connected, then:
+    1. Abort all remaining steps.
+2. Queue a task T to connect S to the document that is presenting S.url.
+3. If T completes successfully, run the following steps:
+    1. Set S.state to connected.
+    2. Let D be the set of presentations known by the user agent.
+    3. Queue a task T to run the following steps in order:
+        1. For each presentation (U, I, S') in D,
+            1. Let u equal U, i equal I, and s equal S'.
+            2. If u is equal to S.url and i is equal to S.id, run the following steps:
+                1. Queue a task to fire an event named statechange at s.onstatechange.
+
 ### 7.4 onavailablechangeイベントハンドラ
+
+<!-- 
+The following are the event handlers (and their corresponding event handler event types) that must be supported, as event handler IDL attributes, by objects implementing the PresentationSession interface:
+ -->
+
+Event handler | Event handler event type
+------ | -------
+onavailablechange | availablechange
+
+<!-- 
+In order to satisfy the power saving non-functionional requirements the user agent must keep track of the number of EventHandlers registered to the onavailable event. Using this information, implementation specific discovery of presentation displays can be resumed or suspended, in order to save power.
+ -->
+
+<!-- 
+The user agent must keep a list of available presentation displays. According to the number of event handlers for onavailablechange, the user agent must also keep the list up to date by running the algorithm for monitoring the list of available presentation displays.
+ -->
+
 
 ### 7.5 onavailablechangeへのイベントハンドラの追加
 
+<!-- 
+When an event handler is added to the list of event handlers registered for the onavailablechange event, the user agent must run the algorithm to monitor the list of available presentation displays.
+ -->
+
+
+
 ### 7.6 イベントハンドラの削除
 
+<!-- 
+When an event handler is removed from the list of event handlers registered to the onavailablechange event, the user agent must run the following steps:
+ -->
+<!-- 
+1. If the removed event handler was the last one in the list, cancel monitoring the list of available presentation displays.
+ -->
+
 ### 7.7 使用可能プレゼンテーションディスプレイのリストの監視
+
+<!-- 
+When the user agent is to monitor the list of available presentation displays, it must run the following steps:
+ -->
+<!-- 
+While there are event handlers added to NavigatorPresentation.onavailablechange, the user agent must continuously keep track the list of available presentation displays and repeat the following steps:
+ -->
+
+
+1. Queue a task to retrieve the the list of curently available presentation displays and let newDisplays be this list.
+2. Wait for the completion of that task.
+3. If availableDisplays is empty and newDisplays is not empty, then
+    1. Queue a task to fire an event named availablechange at with the event's available property set to true.
+4. If availableDisplays is not empty and newDisplays is empty, then:
+    1. Queue a task to fire an event named availablechange with the event's available property set to false.
+5. Set the list of available presentation displays to the value of newDisplays.
+
+<!-- 
+When the user agent is to cancel monitoring the list of available presentation displays, it must run the following steps:
+ -->
+
+<!-- 
+1. Cancel any tasks to retrieve the list of available presentation displays.
+2. Set the list of available presentation displays to empty.
+3. Queue a task to fire an event named availablechange at E (and only E) with the event's available property set to false.
+ -->
 
 ## 8 AvailableChangeEventインタフェース
 
@@ -538,12 +736,22 @@ dictionary AvailableChangeEventInit : EventInit {
 
 ```
 
+<!-- 
+An event named availablechange is fired during the execution of the monitoring presentation display availability algorithm when the presentation display availability changes. It is fired at the PresentationSession object, using the AvailableChangeEvent interface, with the available attribute set to the boolean value that the algorithm determined.
+ -->
+
+
 availablechangeイベントは、プレゼンテーションディスプレイ
 
 
+## セキュリティとプライバシーの検討
 
-<!-- ### 6.2 PresentationSessionインタフェース -->
+[ISSUE 45: Security and privacy considerations section](https://github.com/w3c/presentation-api/issues/45)
 
+## リファレンス
 
-<!-- 
- -->
+略
+
+## 謝辞
+
+略
