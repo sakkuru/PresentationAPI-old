@@ -8,6 +8,8 @@ Editor's Draft 18 March 2015
 
 ## 本ドキュメントの状態
 
+略
+
 <!-- 
 This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current W3C publications and the latest revision of this technical report can be found in the W3C technical reports index at http://www.w3.org/TR/.
  -->
@@ -222,17 +224,15 @@ This section shows example codes that highlight the usage of main features of th
 
 ```
 <!-- controller.html -->
+<button id="castBtn" style="display: none;">  </button>
 <script>
-  // it is also possible to use relative presentation URL e.g. "presentation.html"
-  var presUrl = "http://example.com/presentation.html";
-  // create random presId 
-  var presId = Math.random().toFixed(6).substr(2);
-  // Start new session. presId is optional.
-  // the new started session will be passed to setSession on success or null on error
-  navigator.presentation.startSession(presUrl, presId).then(setSession).catch(function(e){
-    // user cancels the selection dialog or an error is occurred
-    setSession(null);
-  });
+  // castボタンは、少なくともひとつのプレゼンテーションディスプレイが使用可能なときにvisibleとなる
+  var castBtn = document.getElementById("castBtn");
+  // availablechangeイベントは、プレゼンテーションディスプレイの可用性が変化した時発火する
+  navigator.presentation.onavailablechange = function(evt){
+    // ディスプレイの可用性に応じてcastボタンはshowかhideとなる
+    castBtn.style.display = evt.available? "inline" : "none";
+  }
 </script>
 ```
 
@@ -241,12 +241,14 @@ This section shows example codes that highlight the usage of main features of th
 ```
 <!-- controller.html -->
 <script>
-  // read presId from localStorage if exists 
-  var presId = localStorage && localStorage["presId"] || null;
-  // presId is mandatory for joinSession.
-  // The joined session will be passed to setSession on success or null on error
-  presId && navigator.presentation.joinSession(presUrl, presId).then(setSession).catch(function(e){
-    // no session found for presUrl and presId or an error is occurred
+  // 相対URLも使用可能 例: "presentation.html"
+  var presUrl = "http://example.com/presentation.html";
+  // ランダムpresIdを生成
+  var presId = Math.random().toFixed(6).substr(2);
+  // 新規セッションの開始。presIdはオプショナル。
+  // 成功時は新規開始セッションがsetSessionに渡される。エラーのときはnullが渡される。
+  navigator.presentation.startSession(presUrl, presId).then(setSession).catch(function(e){
+    // ユーザが選択ダイアログをキャンセルしたか、エラーが発生した場合
     setSession(null);
   });
 </script>
@@ -257,12 +259,12 @@ This section shows example codes that highlight the usage of main features of th
 ```
 <!-- controller.html -->
 <script>
-  // read presId from localStorage if exists 
+  // もしあればlocalStorageからpresIdから読み込む
   var presId = localStorage && localStorage["presId"] || null;
-  // presId is mandatory for joinSession.
-  // The joined session will be passed to setSession on success or null on error
+  // presIdはjoinSessionに必須である。
+  // 成功時はjoinしたセッションがsetSessionに渡される。エラーの時はnullが渡される。
   presId && navigator.presentation.joinSession(presUrl, presId).then(setSession).catch(function(e){
-    // no session found for presUrl and presId or an error is occurred
+    // presUrl、presIdに対応するセッションがなかったか、エラーが発生した場合
     setSession(null);
   });
 </script>
@@ -275,25 +277,25 @@ This section shows example codes that highlight the usage of main features of th
 <script>
   var session;
   var setSession = function(theSession){
-    // close old session if exists
+    // もしあれば古いセッションをcloseする
     session && session.close();
-    // remove old presId from localStorage if exists
+    // もしあればlocalStorageから古いpresIdを削除する
     localStorage && delete localStorage["presId"];
-    // set the new session
+    // 新規セッションを設定する
     session = theSession;
     if(session){
-      // save presId in localStorage
+      // localStorageにpresIdを保存する
       localStorage && localStorage["presId"] = session.id;
-      // monitor session's state
+      // セッション状態を監視
       session.onstatechange = function(){
         if(this == session && this.state == "disconnected")
           setSession(null);
       };
-      // register message handler
+      // メッセージハンドラを登録
       session.onmessage = function(msg){
         console.log("receive message",msg);
       };
-      // send message to presentation page
+      // プレゼンテーションページにメッセージを送信
       session.postMessage("say hello");
     }
   };
@@ -303,6 +305,7 @@ This section shows example codes that highlight the usage of main features of th
   var session = navigator.presentation.session;
   session.onstatechange = function(){
     // session.state is either 'connected' or 'disconnected'
+    // session.stateは'connected'か'disconnected'
     console.log("session's state is now", session.state);
   };
   session.onmessage = function(msg){
@@ -319,7 +322,7 @@ This section shows example codes that highlight the usage of main features of th
 A presentation display refers to an external screen available to the user agent via an implementation specific connection technology.
  -->
 
-<b>プレゼンテーションディスプレイ</b>は、具体的な接続技術の実装を通してUAが利用可能な外部ディスプレイを指す。
+<b>プレゼンテーションディスプレイ</b>は、具体的な接続技術の実装を用いてUAが利用可能な外部ディスプレイを指す。
 
 <!-- 
 A presentation is an active connection between a user agent and a presentation display for displaying web content on the latter at the request of the former.
@@ -344,8 +347,8 @@ An opening browsing context is a browsing context that has initiated or resumed 
 The presenting browsing context is the browsing context responsible for rendering to a presentation display. A presenting browsing context can reside in the same user agent as the opening browsing context or a different one.
  -->
 
-プレゼンティングブラウジングコンテキストは、プレゼンテーションディスプレイに表示を行う責任があるブラウジングコンテキストである。
-プレゼンティングブラウジングコンテキストは、オープニングブラウジングコンテキストや、他のものと同じUA内に存在できる。
+<b>プレゼンティングブラウジングコンテキスト</b>は、プレゼンテーションディスプレイに表示を行う責任があるブラウジングコンテキストである。
+プレゼンティングブラウジングコンテキストは、オープニングブラウジングコンテキストや、他のブラウジングコンテキストと同じUA内に存在できる。
 
 
 ### 6.2 共通の定義
@@ -354,10 +357,10 @@ The presenting browsing context is the browsing context responsible for renderin
 Let D be the set of presentations that are currently known to the user agent (regardles of their state). D is represented as a set of tuples (U, I, S) where U is the URL that is being presented; I is an alphanumeric identifier for the presentation; and S is the user agent's PresentationSession for the presentation. U and I together uniquely identify the PresentationSession of the corresponding presentation.
  -->
 
-Dを、UAによって現在知られている一連のpresentationとする(状態にかかわらず)。
+Dを、UAが現在知っているプレゼンテーション群とする(それら状態は問わない)。
 Dは一組のタプル(U,I,S)として表される。
-Uは表示されているURL、Iはpresentation用の英数字の識別子、SはpresentationのためのUAのPresentationSessionである。
-UとIは、対応するpresentationのPresentationSessionを一意的に識別する。
+Uは表示されているURL、Iはプレゼンテーション用の英数字の識別子、SはプレゼンテーションのためのUAのPresentationSessionを表す。
+UとIは、対応するプレゼンテーションのPresentationSessionを一意的に識別する。
 
 
 ### 6.3 PresentationSessionインタフェース
@@ -416,8 +419,8 @@ PresentationSessionオブジェクトのcloseメソッドが呼ばれたとき�
 Let presentation message data be the payload data to be transmitted between two browsing contexts. Let presentation message type be the type of that data, one of text and binary.
  -->
 
-<b>プレゼンテーションメッセージデータ</b>を2つのブラウジングコンテキストの間で送信されるペーロードデータとする。
-<b>プレゼンテーションメッセージタイプ</b>をそのデータの型、テキストかバイナリのどちらかとする。
+<b>プレゼンテーションメッセージデータ</b>を2つのブラウジングコンテキストの間で送信されるペイロードデータとする。
+<b>プレゼンテーションメッセージタイプ</b>をそのデータの型、textかbinaryのどちらかとする。
 
 <!-- 
 When the user agent is to post a message through a PresentationSession S, it must run the following steps:
@@ -439,13 +442,13 @@ UAが<b>PresentationSession Sからメッセージを送信</b>するとき、�
 2. もしdataがArrayBufferかBlobなら、プレゼンテーションメッセージタイプ messageTypeをbinaryとする。
 もしdataがDOMString型なら、messageTypeをtextとする。
 
-3. <b>送信先ブラウジングコンテキスト</b>を以下のように割り当てる:
+3. <b>あて先ブラウジングコンテキスト</b>を以下のように割り当てる:
 
-    1. postMessageがプレゼンティングブラウジングコンテキスト内で呼ばれとき、送信先ブラウジングコンテキストをオープニングブラウジングコンテキストとする。
+    1. postMessageがプレゼンティングブラウジングコンテキスト内で呼ばれたとき、あて先ブラウジングコンテキストをオープニングブラウジングコンテキストとする。
 
-    2. postMessageがオープニングブラウジングコンテキストから呼ばれたとき、送信先ブラウジングコンテキストをプレゼンティングブラウジングコンテキストとする。
+    2. postMessageがオープニングブラウジングコンテキストから呼ばれたとき、あて先ブラウジングコンテキストをプレゼンティングブラウジングコンテキストとする。
 
-4. 特定のメカニズムの実装を使って、プレゼンテーションメッセージデータとして、data引数のコンテンツとプレゼンテーションメッセージタイプ messageTypeを、送信先ブラウジングコンテキスト側に送信する。
+4. 具体的なメカニズムの実装を使って、プレゼンテーションメッセージデータとして、data引数のコンテンツとプレゼンテーションメッセージタイプ messageTypeを、あて先ブラウジングコンテキスト側に送信する。
 
 
 #### 6.3.2 PresentationSessionを使ったメッセージの受信
@@ -472,20 +475,20 @@ UAがリモートサイドから、プレゼンテーションメッセージデ
 
 1. もしPresentationSessionのstateプロパティが"disconnected"なら、これらのステップを中断する。
 
-2. eventを、イベントタイプがmessageのMessageEventインタフェースを使用する、新たに生成したtrusted eventとする。それはバブルせず、キャンセルできず、デフォルトアクションを持たない。
+2. eventを、MessageEventインタフェースを使用する、イベントタイプがmessageの、新たに生成したtrusted eventとする。それはバブルせず、キャンセルできず、デフォルトアクションを持たない。
 
-3. eventのorigin属性をURLのUnicodeシリアライゼーションで初期化する。
-オープニングブラウジングコンテキストとプレゼンティングブラウジングコンテキストが共通して持つ。
+3. eventのorigin属性を、URLのUnicodeシリアライゼーションで初期化する。
+それはオープニングブラウジングコンテキストとプレゼンティングブラウジングコンテキストが共通して持っている。
 
 4. eventのdata属性は以下のように初期化する。
 
     1. プレゼンテーションメッセージタイプがtextなら、eventのdata属性をDOMString型のプレゼンテーションメッセージデータのコンテンツで初期化する。
 
-    2. プレゼンテーションメッセージタイプがbinaryで、binaryTypeがblobなら、eventのdata属性を新規Blobオブジェクトで初期化する。それは生データとしてプレゼンテーションメッセージデータで表す。
+    2. プレゼンテーションメッセージタイプがbinaryで、binaryTypeがblobなら、eventのdata属性を新規Blobオブジェクトで初期化する。それは生データとしてプレゼンテーションメッセージデータを表す。
 
-    3. プレゼンテーションメッセージタイプがbinaryで、binaryTypeがarraybufferなら、eventのdata属性を新規ArrayBufferオブジェクトで初期化する。そのコンテンツはpresentatio nmessage dataである。
+    3. プレゼンテーションメッセージタイプがbinaryで、binaryTypeがarraybufferなら、eventのdata属性を新規ArrayBufferオブジェクトで初期化する。その中身はプレゼンテーションメッセージデータである。
 
-5. PresentationSessionでイベントを発火するタスクをキューイングする。
+5. PresentationSessionで、eventを発火するタスクをキューイングする。
 
 
 #### 6.3.3 PresentationSessionのクローズ
@@ -494,7 +497,7 @@ UAがリモートサイドから、プレゼンテーションメッセージデ
 When the user agent is to close a presentation session S, it must run the following steps:
  -->
 
-UAが<b>プレゼンテーションセッション Sをクローズ</b>するとき、以下のステップを実行しなければならない:
+UAが<b>プレゼンテーションセッションSをクローズ</b>するとき、以下のステップを実行しなければならない:
 
 <!-- 
 1. If S.state is not connected, then:
@@ -520,7 +523,7 @@ UAが<b>プレゼンテーションセッション Sをクローズ</b>すると
     1. D内の各presentation(U, I, S')に対して、
 
         1. uをU、iをI、sをS'とする。
-        2. uがS.urlと等しく、iがS.idと等しいなら、以下のステップを実行する:
+        2. uがS.url、iがS.idと等しいなら、以下のステップを実行する:
 
             1. s.onstatechangeでstatechangeイベントを発火するタスクをキューに入れる。
 
@@ -531,7 +534,7 @@ UAが<b>プレゼンテーションセッション Sをクローズ</b>すると
 The following are the event handlers (and their corresponding event handler event types) that must be supported, as event handler IDL attributes, by objects implementing the PresentationSession interface:
  -->
 
-以下のイベントハンドラ(と対応するイベントハンドライベントタイプ)は、PresentationSessionインタフェースを実装するオブジェクトで、イベントハンドラIDL属性としてサポートされなければならない。
+以下のイベントハンドラ(と対応するイベントハンドライベントタイプ)は、PresentationSessionインタフェースを実装するオブジェクトで、イベントハンドラIDL属性としてサポートされなければならない:
 
 Event handler | Event handler event type
 ---- | ---
@@ -551,7 +554,7 @@ partial interface Navigator {
 The presentation attribute is used to retrieve an instance of the NavigatorPresentation interface, the main interface of Presentation API.
  -->
 
-presentation属性はNavigatorPresentationインタフェースのインスタンスの取得に使われる。
+presentation属性は、Presentation APIのメインインタフェースであるNavigatorPresentationインタフェースのインスタンスの取得に使われる。
 
 ```
 interface NavigatorPresentation : EventTarget {
