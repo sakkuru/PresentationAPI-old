@@ -319,33 +319,33 @@ This section shows example codes that highlight the usage of main features of th
 A presentation display refers to an external screen available to the user agent via an implementation specific connection technology.
  -->
 
-presentation displayは、特定の接続技術の実装を通してUAが利用可能な外部ディスプレイを指す。
+<b>プレゼンテーションディスプレイ</b>は、具体的な接続技術の実装を通してUAが利用可能な外部ディスプレイを指す。
 
 <!-- 
 A presentation is an active connection between a user agent and a presentation display for displaying web content on the latter at the request of the former.
  -->
 
-presentationは、UAとプレゼンテーションディスプレイの間の、前者のリクエストに応じて後者にWebコンテンツを表示するためのアクティブな接続である。
+<b>プレゼンテーション</b>は、UAとプレゼンテーションディスプレイの間の、前者のリクエストに応じて後者にWebコンテンツを表示するためのアクティブな接続である。
 
 <!-- 
 A presentation session is an object relating an opening browsing context to its presentation display and enabling two-way-messaging between them. Each such object has a presentation session state and a presentation session identifier to distinguish it from other presentation sessions.
  -->
 
-presentation sessionはopening browsing contextとpresentation displayを関連付け、また2つの間の双方向メッセージングを可能にするオブジェクトである。
-各オブジェクトはpresentation session stateと、他のpresentation sessionと区別するためのpresentation session identifierを持つ。
+<b>プレゼンテーションセッション</b>はオープニングブラウジングコンテキストとプレゼンテーションディスプレイを関連付け、また2つの間の双方向メッセージングを可能にするオブジェクトである。
+各オブジェクトは<b>プレゼンテーションセッション状態</b>と、他のプレゼンテーションと区別するための<b>プレゼンテーションセッション識別子</b>を持つ。
 
 <!-- 
 An opening browsing context is a browsing context that has initiated or resumed a presentation session by calling startSession() or joinSession().
  -->
 
-オープニングブラウジングコンテキストは、startSession()かjoinSession()の呼び出しにより、プレゼンテーションセッションを開始もしくは再開したブラウジングコンテキストである。
+<b>オープニングブラウジングコンテキスト</b>は、startSession()かjoinSession()の呼び出しにより、プレゼンテーションセッションを開始もしくは再開したブラウジングコンテキストである。
 
 <!-- 
 The presenting browsing context is the browsing context responsible for rendering to a presentation display. A presenting browsing context can reside in the same user agent as the opening browsing context or a different one.
  -->
 
-presenting browsing contextは、プレゼンテーションディスプレイに表示を行う責任があるbrowsing contextである。
-presenting browsing contextは、opening browsing contextや、他のものと同じUA内に存在できる。
+プレゼンティングブラウジングコンテキストは、プレゼンテーションディスプレイに表示を行う責任があるブラウジングコンテキストである。
+プレゼンティングブラウジングコンテキストは、オープニングブラウジングコンテキストや、他のものと同じUA内に存在できる。
 
 
 ### 6.2 共通の定義
@@ -362,7 +362,7 @@ UとIは、対応するpresentationのPresentationSessionを一意的に識別�
 
 ### 6.3 PresentationSessionインタフェース
 
-各presentation sessionは、PresentationSessionオブジェクトによって表される。
+各プレゼンテーションは、PresentationSessionオブジェクトによって表される。
 
 ```
 enum PresentationSessionState { "connected", "disconnected" /*, "resumed" */ };
@@ -388,13 +388,13 @@ interface PresentationSession : EventTarget {
 The id attribute holds the alphanumeric presentation session identifier.
  -->
 
-id属性は、英数字のpresentation session identifierを保持する。
+id属性は、英数字のプレゼンテーションセッションを保持する。
 
 <!-- 
 The state attribute represents the presentation session's current state. It can take one of the values of PresentationSessionState depending on connection state.
  -->
 
-state属性はpresentation sessionの現在の状態を表す。
+state属性はプレゼンテーションの現在の状態を表す。
 接続状態に応じて、PresentationSessionStateの値のいずれかを取る。
 
 <!-- 
@@ -408,7 +408,7 @@ UAはPresentationSessionを通してメッセージをポストするための�
 When the close() method is called on a PresentationSession, the user agent must run the algorithm to close a presentation session.
  -->
 
-PresentationSessionオブジェクトのcloseメソッドが呼ばれたとき、UAはpresentation sessionをクローズするためのアルゴリズムを実行しなければならない。
+PresentationSessionオブジェクトのcloseメソッドが呼ばれたとき、UAはプレゼンテーションをクローズするためのアルゴリズムを実行しなければならない。
 
 #### 6.3.1 PresentationSessionを通してのメッセージの送信
 
@@ -416,14 +416,14 @@ PresentationSessionオブジェクトのcloseメソッドが呼ばれたとき�
 Let presentation message data be the payload data to be transmitted between two browsing contexts. Let presentation message type be the type of that data, one of text and binary.
  -->
 
-presentation message dataを2つのbrowsing contextの間で送信されるペーロードデータとする。
-presentatio nmessage typeをそのデータの型、テキストかバイナリのどちらかとする。
+<b>プレゼンテーションメッセージデータ</b>を2つのブラウジングコンテキストの間で送信されるペーロードデータとする。
+<b>プレゼンテーションメッセージタイプ</b>をそのデータの型、テキストかバイナリのどちらかとする。
 
 <!-- 
 When the user agent is to post a message through a PresentationSession S, it must run the following steps:
  -->
 
-UAがPresentationSession Sから送信するとき、以下のステップを実行しなければならない:
+UAが<b>PresentationSession Sからメッセージを送信</b>するとき、以下のステップを実行しなければならない:
 
 <!-- 
 1. If the state property of PresentationSession is "disconnected", throw an InvalidStateError exception.
@@ -436,16 +436,16 @@ UAがPresentationSession Sから送信するとき、以下のステップを実
 
 1. PresentationSessionのstateプロパティが"disconnected"なら、InvalidStateError例外を投げる。
 
-2. もしdataがArrayBufferかBlobなら、presentation message type messageTypeをbinaryとする。
+2. もしdataがArrayBufferかBlobなら、プレゼンテーションメッセージタイプ messageTypeをbinaryとする。
 もしdataがDOMString型なら、messageTypeをtextとする。
 
-3. destination browsing contextを以下のように割り当てる:
+3. <b>送信先ブラウジングコンテキスト</b>を以下のように割り当てる:
 
-    1. postMessageがpresenting browsing context内で呼ばれとき、destination browsing contextをopening browsing contextとする。
+    1. postMessageがプレゼンティングブラウジングコンテキスト内で呼ばれとき、送信先ブラウジングコンテキストをオープニングブラウジングコンテキストとする。
 
-    2. postMessageがopening browsing contextから呼ばれたとき、destination browsing contextをpresenting browsing contextとする。
+    2. postMessageがオープニングブラウジングコンテキストから呼ばれたとき、送信先ブラウジングコンテキストをプレゼンティングブラウジングコンテキストとする。
 
-4. 特定のメカニズムの実装を使って、presentation message dataとして、data引数のコンテンツとpresentation message type messageTypeを、destination browsing context側に送信する。
+4. 特定のメカニズムの実装を使って、プレゼンテーションメッセージデータとして、data引数のコンテンツとプレゼンテーションメッセージタイプ messageTypeを、送信先ブラウジングコンテキスト側に送信する。
 
 
 #### 6.3.2 PresentationSessionを使ったメッセージの受信
@@ -454,7 +454,7 @@ UAがPresentationSession Sから送信するとき、以下のステップを実
 When the user agent has received a transmission from the remote side consisting of presentation message data and presentation message type, it must run the following steps:
  -->
 
-UAがリモートサイドから、presentation message dataとpresentation message typeからなるメッセージを受信したとき、以下のステップを実行しなければならない:
+UAがリモートサイドから、プレゼンテーションメッセージデータとプレゼンテーションメッセージタイプからなるメッセージを受信したとき、以下のステップを実行しなければならない:
 
 <!-- 
 1. If the state property of PresentationSession is "disconnected", abort these steps.
@@ -475,15 +475,15 @@ UAがリモートサイドから、presentation message dataとpresentation mess
 2. eventを、イベントタイプがmessageのMessageEventインタフェースを使用する、新たに生成したtrusted eventとする。それはバブルせず、キャンセルできず、デフォルトアクションを持たない。
 
 3. eventのorigin属性をURLのUnicodeシリアライゼーションで初期化する。
-opening browsing contextとpresenting browsing contextが共通して持つ。
+オープニングブラウジングコンテキストとプレゼンティングブラウジングコンテキストが共通して持つ。
 
 4. eventのdata属性は以下のように初期化する。
 
-    1. presentation message typeがtextなら、eventのdata属性をDOMString型のpresentation message dataのコンテンツで初期化する。
+    1. プレゼンテーションメッセージタイプがtextなら、eventのdata属性をDOMString型のプレゼンテーションメッセージデータのコンテンツで初期化する。
 
-    2. presentation message typeがbinaryで、binaryTypeがblobなら、eventのdata属性を新規Blobオブジェクトで初期化する。それは生データとしてpresentation message dataで表す。
+    2. プレゼンテーションメッセージタイプがbinaryで、binaryTypeがblobなら、eventのdata属性を新規Blobオブジェクトで初期化する。それは生データとしてプレゼンテーションメッセージデータで表す。
 
-    3. presentation message typeがbinaryで、binaryTypeがarraybufferなら、eventのdata属性を新規ArrayBufferオブジェクトで初期化する。そのコンテンツはpresentatio nmessage dataである。
+    3. プレゼンテーションメッセージタイプがbinaryで、binaryTypeがarraybufferなら、eventのdata属性を新規ArrayBufferオブジェクトで初期化する。そのコンテンツはpresentatio nmessage dataである。
 
 5. PresentationSessionでイベントを発火するタスクをキューイングする。
 
@@ -494,7 +494,7 @@ opening browsing contextとpresenting browsing contextが共通して持つ。
 When the user agent is to close a presentation session S, it must run the following steps:
  -->
 
-UAがpresentation session Sをクローズしようとするとき、以下のステップを実行しなければならない:
+UAが<b>プレゼンテーションセッション Sをクローズ</b>するとき、以下のステップを実行しなければならない:
 
 <!-- 
 1. If S.state is not connected, then:
@@ -578,7 +578,7 @@ presentationId, an optional identifier for the presentation
  -->
 
 * presentationUrl : 表示されるドキュメントのURL
-* presentationId : presentationのためのオプショナルな識別子
+* presentationId : プレゼンテーションのためのオプショナルな識別子
 
 #### Output
 
@@ -616,23 +616,23 @@ P, a Promise
 
 1. Pを新しいPromiseとする。
 2. Pを返す。
-3. UAがpresentation display availabilityの監視をしていないなら、以下のステップを実行する:
-    1. presentation display availabilityを監視する。
+3. UAがプレゼンテーションディスプレイの可用性の監視をしていないなら、以下のステップを実行する:
+    1. プレゼンテーションディスプレイの可用性を監視する。
     2. アルゴリズムが終わるまで待機する。
 4. もしavailableDisplayが空なら:
     1. "NoScreensAvailable"例外とともにPをリジェクトする。
     2. 残りのステップをすべて中断する。
-5. presentation displayの使用のためのユーザの許可と、一つのpresentation displayの選択をリクエストするためのタスクTをキューに入れる。
+5. プレゼンテーションディスプレイを使用するためのユーザの許可と、一つのプレゼンテーションディスプレイの選択をリクエストするためのタスクTをキューに入れる。
     1. Tがユーザのスクリーンの使用の許可とともに完了したなら、以下のステップを実行する。
-        1. presentationIdがundefinedじゃないなら、IにそのpresentationIdを割りあてる。
+        1. presentationIdがundefinedでない場合、IにそのpresentationIdを割りあてる。
         2. presentationIdがundefinedなら、Iを[A-Za-z0-9]から選ばれた少なくとも16文字のランダム英数字の値とする。
         3. 新規PresentationSession Sを生成する。
         4. S.urlをpresentationURL、S.idをI、S.stateをdisconnectedとする。
-        5. ユーザが選択したpresentation display上に新規browsing contextを生成し、presentationUrlをその中にナビゲートするタスクCをキューに入れる。
+        5. ユーザが選択したプレゼンテーションディスプレイ上に新規ブラウジングコンテキストを生成し、presentationUrlをその中にナビゲートするタスクCをキューに入れる。
             1. Cが成功で完了した場合、以下のステップを実行する:
                 1. Dに(S.url, S.id, S)を追加する。
                 2. SでPを解決する。
-                3. Sでpresentation connectionを確立する。
+                3. Sでプレゼンテーションコネクションを確立する。
             2. Cが失敗したら、以下のステップを実行する:
                 1. Pを"failed"例外とともにリジェクトする。
     2. Tがユーザの拒否とともに完了したなら、以下のステップを実行する。
@@ -645,6 +645,10 @@ P, a Promise
 When the joinSession(presentationUrl, presentationId) method is called, the user agent must run the following steps:
  -->
 
+
+joinSession(presentationUrl, presentationId)メソッドが呼ばれたとき、UAは以下のステップを実行しなければならない。
+
+
 #### Input
 
 <!-- 
@@ -652,8 +656,8 @@ presentationUrl, the URL of the document being presented
 presentationId, the identifier for the presentation
  -->
 
-* presentationUrl : 表示されるドキュメントのURL
-* presentationId : presentationのためのオプショナルな識別子
+* presentationUrl : 表示されているドキュメントのURL
+* presentationId : プレゼンテーションのためのオプショナルな識別子
 
 #### Output
 
@@ -680,13 +684,13 @@ P, a Promise
 
 1. Pを新しいPromiseとする。
 2. Pを返す。
-3. Dを、UAによって現在知られている一連のpresentationとする。
+3. Dを、UAが知っているプレゼンテーションのセットとする。
 4. 以下のステップを順序どおりに実行するタスクTをキューに入れる。
     1. D内の各(U, I, D)に対して:
         1. uをU、iをI、sをSとする。
-        2. uがpresentationUrl、iがpresentationIdなら、以下のステップを実行する:
+        2. uがpresentationUrl、iがpresentationIdと等しいなら、以下のステップを実行する:
             1. PをSで解決する。
-            2. Sでpresentation connectionを確立する。
+            2. Sでプレゼンテーションコネクションを確立する。
             3. Tの残りのステップを中断する。
     2. Pを"NoPresentationFound"例外とともにリジェクトする。
 
@@ -697,7 +701,7 @@ P, a Promise
 When the user agent is to establish a presentation connection using a presentation session S, it must run the following steps:
  -->
 
-UAがpresentation session Sを使ってpresentation connectionを確立するとき、以下のステップを実行する。
+UAがプレゼンテーションセッションSを使ってプレゼンテーションコネクションを確立するとき、以下のステップを実行する:
 
 <!-- 
 1. If S.state is connected, then:
@@ -715,15 +719,15 @@ UAがpresentation session Sを使ってpresentation connectionを確立すると
 
 1. もしS.stateがconnectedなら:
     1. 残りのステップを中断する。
-2. SをS.urlをプレゼンするドキュメントと接続するタスクTをキューに入れる。
+2. SとS.urlを表示しているドキュメントを接続するタスクTをキューに入れる。
 3. Tが成功で完了した場合、以下のステップを実行する:
     1. S.stateをconnectedにセットする。
-    2. DをUAによって知られているプレゼンテーションのセットとする。
+    2. DをUAが知っているプレゼンテーションのセットとする。
     3. 以下のステップを順序どおりに実行するタスクTをキューに入れる。
         1. D内の各プレゼンテーション(U, I, S')に対して,
-            1. uをU、iをI、sをSとする。
-            2. uがS.urlと等しく、iがS.idと等しいとき、以下のステップを実行する:
-                1. s.onstatechangeでstatechangeイベントをハッｋするタスクをキューに入れる。
+            1. uをU、iをI、sをS'とする。
+            2. uがS.url、iがS.idと等しいとき、以下のステップを実行する:
+                1. s.onstatechangeでstatechangeイベントを発火するタスクをキューに入れる。
 
 ### 7.4 onavailablechangeイベントハンドラ
 
@@ -757,7 +761,7 @@ onavailablechangeのイベントハンドラの数に従って、UAは使用可�
 When an event handler is added to the list of event handlers registered for the onavailablechange event, the user agent must run the algorithm to monitor the list of available presentation displays.
  -->
 
-onavailablechangeイベントに登録されたイベントハンドラのリストにイベントハンドラが追加された時、UAは使用可能なプレゼンテーションディスプレイのリストの監視のアルゴリズムを実行しなければならない。
+onavailablechangeイベントに登録されたイベントハンドラのリストに、イベントハンドラが追加されたとき、UAは使用可能なプレゼンテーションディスプレイのリストの監視のアルゴリズムを実行しなければならない。
 
 
 ### 7.6 イベントハンドラの削除
@@ -788,7 +792,7 @@ While there are event handlers added to NavigatorPresentation.onavailablechange,
  -->
 
 NavigatorPresentation.onavailablechangeに追加されたイベントハンドラがあるとき、
-UAは引き続き
+UAは引き続き使用可能なプレゼンテーションディスプレイのリストの経過を追い、以下のステップを繰り返さなければならない。
 
 <!-- 
 1. Queue a task to retrieve the the list of curently available presentation displays and let newDisplays be this list.
@@ -803,7 +807,11 @@ UAは引き続き
 1. 現在使用可能なプレゼンテーションディスプレイのリストを取得し、newDisplayをそのリストとするタスクをキューに入れる。
 2. そのタスクの完了を待機する。
 3. availableDisplayが空で、newDisplayが空でないなら、
-    1. イベントのavailableプロパティをtrueにセットして、avalablechangeイベント
+    1. イベントのavailableプロパティをtrueにセットして、avalablechangeイベントを発火するタスクをキューに入れなければならない。
+4. availableDisplaysが空でなく、newDisplayが空なら:
+    1. イベントのavailableプロパティをfalseにセットして、avalablechangeイベントを発火するタスクをキューに入れなければならない。
+5. 使用可能なプレゼンテーションディスプレイのリストを、newDisplaysの値で設定する。
+
 
 <!-- 
 When the user agent is to cancel monitoring the list of available presentation displays, it must run the following steps:
@@ -818,9 +826,9 @@ UAが<b>使用可能なプレゼンテーションディスプレイのリスト
 3. Queue a task to fire an event named availablechange at E (and only E) with the event's available property set to false.
  -->
 
-1. 使用可能なpresentation displayのリストの取得のタスクをキャンセルする。
-2. available presentation displayのリストを空にする。
-3. availableプロパティをfalseにセットしたavailablechangeという名のイベントをキューに入れる。
+1. 使用可能なプレゼンテーションディスプレイのリストの取得のタスクをキャンセルする。
+2. 使用可能なプレゼンテーションディスプレイのリストを空にする。
+3. availableプロパティをfalseにセットした、availablechangeという名のイベントをキューに入れる。
 
 
 ## 8 AvailableChangeEventインタフェース
@@ -842,9 +850,9 @@ An event named availablechange is fired during the execution of the monitoring p
  -->
 
 
-availablechangeイベントは、プレゼンテーションディスプレイの可用性監視アルゴリズムの実行中、presenattion display availabilityが変化したときに発火する。
-PresentationSessionオブジェクトで、AvailableChangeEventインタフェースを使用して、
-available属性がアルゴリズムが決めたboolean値でセットされて発火する。
+availablechangeイベントは、プレゼンテーションディスプレイの可用性監視アルゴリズムの実行中、<b>プレゼンテーションディスプレイの可用性</b>が変化したときに発火する。
+それはPresentationSessionオブジェクトで、AvailableChangeEventインタフェースを使用して、
+available属性がアルゴリズムが決めたboolean値に設定されて発火する。
 
 
 ## セキュリティとプライバシーの検討
