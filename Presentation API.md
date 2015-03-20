@@ -11,6 +11,7 @@ Editor's Draft 18 March 2015
 <!-- 
 This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current W3C publications and the latest revision of this technical report can be found in the W3C technical reports index at http://www.w3.org/TR/.
  -->
+
 <!-- 
 This document was published by the Second Screen Presentation Working Group as an Editor's Draft. If you wish to make comments regarding this document, please send them to public-secondscreen@w3.org (subscribe, archives). All comments are welcome.
  -->
@@ -42,7 +43,7 @@ This document is governed by the 1 August 2014 W3C Process Document.
 Devices with limited screen size lack the ability to show content to a larger audience, for example a group of colleagues in a conference room, or friends and family at home. Showing content on an external large display helps to improve the perceived quality and impact of the presented content.
 -->
 
-限られたスクリーンサイズのデバイスは、多くの聴衆に向けてのコンテンツ表示能力に欠ける。例えばカンファレンスルームでの同僚グループや、宅内での友人や家族など。
+限られたスクリーンサイズのデバイスは、多くの聴衆に向けてのコンテンツ表示能力に欠ける。例えばカンファレンスルームでの同僚グループや、宅内での友人や家族などである。
 外部の大きなディスプレイへのコンテンツ表示は、表示コンテンツの認識の質やインパクトを向上させる。
 
 <!--
@@ -53,7 +54,7 @@ but instead of displaying in a window on that same device, it can use whatever m
 
 中核として、本仕様はリクエストを送るページとセカンダリディスプレイに表示されるページとの間でメッセージ交換を可能にする。
 さまざまな方法で接続されているディスプレイデバイスを使用できるようにするため、どのようにメッセージが送信されるかはUAに委ねられる。
-例えば、ディスプレイデバイスがHDMIやMiraCastで接続されている場合は、リクエストを送信するデバイス上のUAは、同じUA上でリクエストされたページを表示できる。
+例えば、ディスプレイデバイスがHDMIやMiraCastで接続されている場合、リクエストを送信するデバイス上のUAは、同じUA上でリクエストされたページを表示できる。
 また同じデバイス上のウィンドウで表示する代わりに、OSが提供する外部ディスプレイを使うためのどんな方法でも使うことができる。
 この場合、リクエストを送るページも表示されるページもリクエストを送るデバイスで動いていて、OSはディスプレイ出力を他のディスプレイデバイスに送るために使われる。
 セカンドディスプレイデバイスは、本仕様やコンテンツがHTML5を含むことについて知る必要は無い。
@@ -81,10 +82,10 @@ This way of attaching to displays could be enhanced in the future through defini
 ### 2.1 ユースケース
 
 #### プレゼンテーション
+
 <!-- 
 A user is preparing a set of slides for a talk. Using a web based service, she is editing her slides and speaker notes on the primary screen, while the secondary larger screen shows a preview of the current slide. When the slides are done, her mobile phone allows her to access them from an online service while on the go. Coming to the conference, using wireless display technology, she would like to present her slides on the stage screen from her mobile phone. The phone's touch screen helps her to navigate slides and presents a slide preview, while the projector shows her slides to the audience.
  -->
-
 
 あるユーザが講演用のスライドを用意する。
 彼女は大きいセカンドスクリーンに現在のスライドのプレビューを表示させながら、
@@ -567,6 +568,8 @@ interface NavigatorPresentation : EventTarget {
 When the startSession(presentationUrl, presentationId) method is called, the user agent must run the following steps:
  -->
 
+startSession(presentationUrl, presentationId)メソッドが呼ばれたとき、UAは以下のステップを実行しなければならない。
+
 #### Input
 
 <!-- 
@@ -574,13 +577,18 @@ presentationUrl, the URL of the document to be presented
 presentationId, an optional identifier for the presentation
  -->
 
+* presentationUrl : 表示されるドキュメントのURL
+* presentationId : presentationのためのオプショナルな識別子
+
 #### Output
 
 <!-- 
 P, a Promise
  -->
 
+* P : Promise
 
+<!-- 
 1. Let P be a new Promise.
 2. Return P.
 3. If the user agent does not monitor presentation display availability, run the following steps:
@@ -604,6 +612,32 @@ P, a Promise
                 1. Reject P with a "failed" exception.
     2. If T completes with the user denying permission, run the following steps:
         1. Reject P with a "PermissionDenied" exception.
+ -->
+
+1. Pを新しいPromiseとする。
+2. Pを返す。
+3. UAがpresentation display availabilityの監視をしていないなら、以下のステップを実行する:
+    1. presentation display availabilityを監視する。
+    2. アルゴリズムが終わるまで待機する。
+4. もしavailableDisplayが空なら:
+    1. "NoScreensAvailable"例外とともにPをリジェクトする。
+    2. 残りのステップをすべて中断する。
+5. presentation displayの使用のためのユーザの許可と、一つのpresentation displayの選択をリクエストするためのタスクTをキューに入れる。
+    1. Tがユーザのスクリーンの使用の許可とともに完了したなら、以下のステップを実行する。
+        1. presentationIdがundefinedじゃないなら、IにそのpresentationIdを割りあてる。
+        2. presentationIdがundefinedなら、Iを[A-Za-z0-9]から選ばれた少なくとも16文字のランダム英数字の値とする。
+        3. 新規PresentationSession Sを生成する。
+        4. S.urlをpresentationURL、S.idをI、S.stateをdisconnectedとする。
+        5. ユーザが選択したpresentation display上に新規browsing contextを生成し、presentationUrlをその中にナビゲートするタスクCをキューに入れる。
+            1. Cが成功で完了した場合、以下のステップを実行する:
+                1. Dに(S.url, S.id, S)を追加する。
+                2. SでPを解決する。
+                3. Sでpresentation connectionを確立する。
+            2. Cが失敗したら、以下のステップを実行する:
+                1. Pを"failed"例外とともにリジェクトする。
+    2. Tがユーザの拒否とともに完了したなら、以下のステップを実行する。
+        1. Pを"PermissionDenied"例外とともにリジェクトする。
+
 
 ### 7.2 プレゼンテーションセッションへの参加
 
@@ -618,12 +652,18 @@ presentationUrl, the URL of the document being presented
 presentationId, the identifier for the presentation
  -->
 
+* presentationUrl : 表示されるドキュメントのURL
+* presentationId : presentationのためのオプショナルな識別子
+
 #### Output
 
 <!-- 
 P, a Promise
  -->
 
+* P : Promise
+
+<!-- 
 1. Let P be a new Promise.
 2. Return P.
 3. Let D be the set of presentations known by the user agent.
@@ -635,8 +675,20 @@ P, a Promise
             2. Establish a presentation connection with S.
             3. Abort the remaining steps of T.
     2. Reject P with a "NoPresentationFound" exception.
+ -->
 
 
+1. Pを新しいPromiseとする。
+2. Pを返す。
+3. Dを、UAによって現在知られている一連のpresentationとする。
+4. 以下のステップを順序どおりに実行するタスクTをキューに入れる。
+    1. D内の各(U, I, D)に対して:
+        1. uをU、iをI、sをSとする。
+        2. uがpresentationUrl、iがpresentationIdなら、以下のステップを実行する:
+            1. PをSで解決する。
+            2. Sでpresentation connectionを確立する。
+            3. Tの残りのステップを中断する。
+    2. Pを"NoPresentationFound"例外とともにリジェクトする。
 
 
 ### 7.3 プレゼンテーションコネクションの確立
@@ -645,7 +697,9 @@ P, a Promise
 When the user agent is to establish a presentation connection using a presentation session S, it must run the following steps:
  -->
 
+UAがpresentation session Sを使ってpresentation connectionを確立するとき、以下のステップを実行する。
 
+<!-- 
 1. If S.state is connected, then:
     1. Abort all remaining steps.
 2. Queue a task T to connect S to the document that is presenting S.url.
@@ -657,12 +711,27 @@ When the user agent is to establish a presentation connection using a presentati
             1. Let u equal U, i equal I, and s equal S'.
             2. If u is equal to S.url and i is equal to S.id, run the following steps:
                 1. Queue a task to fire an event named statechange at s.onstatechange.
+ -->
+
+1. もしS.stateがconnectedなら:
+    1. 残りのステップを中断する。
+2. SをS.urlをプレゼンするドキュメントと接続するタスクTをキューに入れる。
+3. Tが成功で完了した場合、以下のステップを実行する:
+    1. S.stateをconnectedにセットする。
+    2. DをUAによって知られているプレゼンテーションのセットとする。
+    3. 以下のステップを順序どおりに実行するタスクTをキューに入れる。
+        1. D内の各プレゼンテーション(U, I, S')に対して,
+            1. uをU、iをI、sをSとする。
+            2. uがS.urlと等しく、iがS.idと等しいとき、以下のステップを実行する:
+                1. s.onstatechangeでstatechangeイベントをハッｋするタスクをキューに入れる。
 
 ### 7.4 onavailablechangeイベントハンドラ
 
 <!-- 
 The following are the event handlers (and their corresponding event handler event types) that must be supported, as event handler IDL attributes, by objects implementing the PresentationSession interface:
  -->
+
+以下は、PresentationSessionインタフェースを実装しているオブジェクトで、イベントハンドラIDL属性としてサポートされなければならないイベントハンドラである:
 
 Event handler | Event handler event type
 ------ | -------
@@ -672,10 +741,15 @@ onavailablechange | availablechange
 In order to satisfy the power saving non-functionional requirements the user agent must keep track of the number of EventHandlers registered to the onavailable event. Using this information, implementation specific discovery of presentation displays can be resumed or suspended, in order to save power.
  -->
 
+パワーセーブ非機能要件を満たすため、UAはonavailableイベントに登録されているイベントハンドラの数を把握しなければならない。
+この情報を使って、プレゼンテーションディスプレイの実装固有の検出は、パワーセーブのため再開や一時停止をすることができる。
+
 <!-- 
 The user agent must keep a list of available presentation displays. According to the number of event handlers for onavailablechange, the user agent must also keep the list up to date by running the algorithm for monitoring the list of available presentation displays.
  -->
 
+UAは<b>使用可能なプレゼンテーションディスプレイのリスト</b>を保持しなければならない。
+onavailablechangeのイベントハンドラの数に従って、UAは使用可能なプレゼンテーションディスプレイのリストの監視のためのアルゴリズムの実行によって、リストを最新に保たなければならない。
 
 ### 7.5 onavailablechangeへのイベントハンドラの追加
 
@@ -683,6 +757,7 @@ The user agent must keep a list of available presentation displays. According to
 When an event handler is added to the list of event handlers registered for the onavailablechange event, the user agent must run the algorithm to monitor the list of available presentation displays.
  -->
 
+onavailablechangeイベントに登録されたイベントハンドラのリストにイベントハンドラが追加された時、UAは使用可能なプレゼンテーションディスプレイのリストの監視のアルゴリズムを実行しなければならない。
 
 
 ### 7.6 イベントハンドラの削除
@@ -690,20 +765,32 @@ When an event handler is added to the list of event handlers registered for the 
 <!-- 
 When an event handler is removed from the list of event handlers registered to the onavailablechange event, the user agent must run the following steps:
  -->
+
+イベントハンドラがonavailablechangeイベントに登録されたイベントハンドラのリストから削除されたとき、
+UAは以下のステップを実行しなければならない。
+
 <!-- 
 1. If the removed event handler was the last one in the list, cancel monitoring the list of available presentation displays.
  -->
+
+1. 削除されたイベントハンドラがリストの最後の一つなら、使用可能なプレゼンテーションディスプレイのリストの監視を中止する。
 
 ### 7.7 使用可能プレゼンテーションディスプレイのリストの監視
 
 <!-- 
 When the user agent is to monitor the list of available presentation displays, it must run the following steps:
  -->
+
+UAが<b>使用可能なプレゼンテーションディスプレイのリストの監視</b>をするとき、以下のステップを実行しなければならない:
+
 <!-- 
 While there are event handlers added to NavigatorPresentation.onavailablechange, the user agent must continuously keep track the list of available presentation displays and repeat the following steps:
  -->
 
+NavigatorPresentation.onavailablechangeに追加されたイベントハンドラがあるとき、
+UAは引き続き
 
+<!-- 
 1. Queue a task to retrieve the the list of curently available presentation displays and let newDisplays be this list.
 2. Wait for the completion of that task.
 3. If availableDisplays is empty and newDisplays is not empty, then
@@ -711,16 +798,30 @@ While there are event handlers added to NavigatorPresentation.onavailablechange,
 4. If availableDisplays is not empty and newDisplays is empty, then:
     1. Queue a task to fire an event named availablechange with the event's available property set to false.
 5. Set the list of available presentation displays to the value of newDisplays.
+ -->
+
+1. 現在使用可能なプレゼンテーションディスプレイのリストを取得し、newDisplayをそのリストとするタスクをキューに入れる。
+2. そのタスクの完了を待機する。
+3. availableDisplayが空で、newDisplayが空でないなら、
+    1. イベントのavailableプロパティをtrueにセットして、avalablechangeイベント
 
 <!-- 
 When the user agent is to cancel monitoring the list of available presentation displays, it must run the following steps:
  -->
+
+UAが<b>使用可能なプレゼンテーションディスプレイのリストの監視をキャンセル</b>するとき、以下のステップを実行しなければならない:
+
 
 <!-- 
 1. Cancel any tasks to retrieve the list of available presentation displays.
 2. Set the list of available presentation displays to empty.
 3. Queue a task to fire an event named availablechange at E (and only E) with the event's available property set to false.
  -->
+
+1. 使用可能なpresentation displayのリストの取得のタスクをキャンセルする。
+2. available presentation displayのリストを空にする。
+3. availableプロパティをfalseにセットしたavailablechangeという名のイベントをキューに入れる。
+
 
 ## 8 AvailableChangeEventインタフェース
 
@@ -741,7 +842,9 @@ An event named availablechange is fired during the execution of the monitoring p
  -->
 
 
-availablechangeイベントは、プレゼンテーションディスプレイ
+availablechangeイベントは、プレゼンテーションディスプレイの可用性監視アルゴリズムの実行中、presenattion display availabilityが変化したときに発火する。
+PresentationSessionオブジェクトで、AvailableChangeEventインタフェースを使用して、
+available属性がアルゴリズムが決めたboolean値でセットされて発火する。
 
 
 ## セキュリティとプライバシーの検討
