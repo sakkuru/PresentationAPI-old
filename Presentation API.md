@@ -104,7 +104,7 @@ Using an online video or image sharing service, a user would like to show memora
 
 オンラインビデオ・画像共有サービスを使って、あるユーザは記憶したい瞬間を友人たちに見せたいと思う。
 小さなスクリーンのデバイスでは、大勢の人間にコンテンツを見せることは不可能である。
-デバイスを外部TVスクリーンやプロジェクタへ接続(有線もしくは無線で)し、オンライン共有サービスは接続されたディスプレイを使用し、多くの聴衆がコンテンツを楽しめるようにする。
+外部TVスクリーンやプロジェクタをデバイスへ接続(有線もしくは無線で)すると、オンライン共有サービスは接続されたディスプレイを使えるようになり、多くの聴衆がコンテンツを楽しめるようになる。
 少なくとも一つのセカンドスクリーンが使用可能なときだけ、Webページはユーザがコンテンツをセカンドディスプレイに表示開始できるUI要素を表示する。
 
 #### マルチプレイヤーゲーム
@@ -391,13 +391,13 @@ interface PresentationSession : EventTarget {
 The id attribute holds the alphanumeric presentation session identifier.
  -->
 
-id属性は、英数字のプレゼンテーションセッションを保持する。
+id属性は、英数字のプレゼンテーションセッション識別子を保持する。
 
 <!-- 
 The state attribute represents the presentation session's current state. It can take one of the values of PresentationSessionState depending on connection state.
  -->
 
-state属性はプレゼンテーションの現在の状態を表す。
+state属性はプレゼンテーションセッションの現在の状態を表す。
 接続状態に応じて、PresentationSessionStateの値のいずれかを取る。
 
 <!-- 
